@@ -1,0 +1,12 @@
+[
+  {"id": "bitcoin", "symbol": "BTC", "name": "Bitcoin", "weight": 0.552},
+  {"id": "ethereum", "symbol": "ETH", "name": "Ethereum", "weight": 0.198},
+  {"id": "binancecoin", "symbol": "BNB", "name": "BNB", "weight": 0.047},
+  {"id": "solana", "symbol": "SOL", "name": "Solana", "weight": 0.042},
+  {"id": "cardano", "symbol": "ADA", "name": "Cardano", "weight": 0.021},
+  {"id": "ripple", "symbol": "XRP", "name": "XRP", "weight": 0.034},
+  {"id": "dogecoin", "symbol": "DOGE", "name": "Dogecoin", "weight": 0.019},
+  {"id": "the-open-network", "symbol": "TON", "name": "Toncoin", "weight": 0.025},
+  {"id": "avalanche-2", "symbol": "AVAX", "name": "Avalanche", "weight": 0.031},
+  {"id": "polkadot", "symbol": "DOT", "name": "Polkadot", "weight": 0.031}
+]
