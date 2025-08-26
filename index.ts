@@ -1,5 +1,6 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
+import path from "path";
 
 const app = express();
 
@@ -36,6 +37,9 @@ app.use((req, res, next) => {
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+// Serve static assets (e.g., whitepaper) from ../assets
+app.use("/assets", express.static(path.join(__dirname, "..", "assets")));
 
 app.use((req, res, next) => {
   const start = Date.now();
