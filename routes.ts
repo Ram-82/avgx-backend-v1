@@ -24,6 +24,8 @@ const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
 });
 
+const WHITEPAPER_URL = process.env.WHITEPAPER_URL || 'https://avgx-whitepaperoth.static.domains/3c0f6e2f91050b0ad506c26142589fcf.pdf';
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // API to keep the DB active
   app.get('/', async (req, res) => {
@@ -304,7 +306,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Serve whitepaper PDF: force download
+  // Serve whitepaper PDF: force download (local asset)
   app.get('/api/whitepaper', (req, res) => {
     try {
       const pdfPath = path.join(__dirname, 'assets', 'whitepaper.pdf');
@@ -321,20 +323,67 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Serve whitepaper inline for viewing in browser
+  // Serve whitepaper inline for viewing in browser (redirect to static asset)
   app.get('/api/whitepaper/view', (req, res) => {
     try {
-      const pdfPath = path.join(__dirname, '..', 'assets', 'whitepaper.pdf');
+      const pdfPath = path.join(__dirname, 'assets', 'whitepaper.pdf');
       if (!fs.existsSync(pdfPath)) {
         return res.status(404).json({ error: 'Whitepaper not found' });
       }
-      res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Content-Disposition', 'inline; filename="AVGX_Whitepaper.pdf"');
-      const fileStream = fs.createReadStream(pdfPath);
-      fileStream.pipe(res);
+      // Redirect so the static middleware serves it without Content-Disposition headers
+      return res.redirect(302, '/assets/whitepaper.pdf');
     } catch (error) {
       console.error('Error serving inline whitepaper:', error);
       res.status(500).json({ error: 'Failed to serve whitepaper' });
+    }
+  });
+
+  // Remote whitepaper inline proxy (for cross-origin hosted PDF)
+  app.get('/api/whitepaper/remote', async (req, res) => {
+    try {
+      const response = await fetch(WHITEPAPER_URL);
+      if (!response.ok || !response.body) {
+        return res.status(502).json({ error: 'Failed to fetch remote whitepaper' });
+      }
+      res.setHeader('Content-Type', response.headers.get('content-type') || 'application/pdf');
+      res.setHeader('Content-Disposition', 'inline; filename="AVGX_Whitepaper.pdf"');
+      const reader = response.body.getReader();
+      const stream = new ReadableStream({
+        start(controller) {
+          function push() {
+            reader.read().then(({ done, value }) => {
+              if (done) {
+                controller.close();
+                return;
+              }
+              controller.enqueue(value);
+              push();
+            });
+          }
+          push();
+        }
+      });
+      const nodeStream = (stream as any);
+      nodeStream.pipeTo ? nodeStream.pipeTo(res as any) : res.end(await response.arrayBuffer());
+    } catch (error) {
+      console.error('Error proxying remote whitepaper:', error);
+      res.status(500).json({ error: 'Failed to proxy whitepaper' });
+    }
+  });
+
+  // Remote whitepaper download proxy
+  app.get('/api/whitepaper/remote-download', async (req, res) => {
+    try {
+      const response = await fetch(WHITEPAPER_URL);
+      if (!response.ok || !response.body) {
+        return res.status(502).json({ error: 'Failed to fetch remote whitepaper' });
+      }
+      res.setHeader('Content-Type', response.headers.get('content-type') || 'application/pdf');
+      res.setHeader('Content-Disposition', 'attachment; filename="AVGX_Whitepaper.pdf"');
+      response.body.pipe(res);
+    } catch (error) {
+      console.error('Error proxying remote whitepaper (download):', error);
+      res.status(500).json({ error: 'Failed to proxy whitepaper' });
     }
   });
 
