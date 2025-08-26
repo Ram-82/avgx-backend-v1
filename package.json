@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "dev": "tsx index.ts",
-    "build": "npx esbuild index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist && (if exist assets xcopy /E /I /Y assets dist\\assets) || (cp -r assets dist/assets 2>/dev/null || true)",
+    "build": "npx esbuild index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist && if [ -d assets ]; then cp -r assets dist/; fi",
     "start": "node dist/index.js",
     "check": "tsc",
     "db:push": "drizzle-kit push"
