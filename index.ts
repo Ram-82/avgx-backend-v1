@@ -43,7 +43,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 // Serve static assets (e.g., whitepaper) from ../assets
-app.use("/assets", express.static(path.join(__dirname, "..", "assets")));
+app.use("/assets", express.static(path.join(__dirname, "assets")));
 
 app.use((req, res, next) => {
   const start = Date.now();
