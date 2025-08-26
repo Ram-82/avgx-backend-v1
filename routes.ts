@@ -307,7 +307,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Serve whitepaper PDF: force download
   app.get('/api/whitepaper', (req, res) => {
     try {
-      const pdfPath = path.join(__dirname, '..', 'assets', 'whitepaper.pdf');
+      const pdfPath = path.join(__dirname, 'assets', 'whitepaper.pdf');
       if (!fs.existsSync(pdfPath)) {
         return res.status(404).json({ error: 'Whitepaper not found' });
       }
