@@ -24,7 +24,7 @@ const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
 });
 
-const WHITEPAPER_URL = process.env.WHITEPAPER_URL || 'https://avgx-whitepaperoth.static.domains/3c0f6e2f91050b0ad506c26142589fcf.pdf';
+const WHITEPAPER_URL = process.env.WHITEPAPER_URL || 'https://avgx-whitepaperoth.static.domains/whitepaper.pdf';
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API to keep the DB active
