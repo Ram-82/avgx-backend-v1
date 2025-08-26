@@ -321,6 +321,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Serve whitepaper inline for viewing in browser
+  app.get('/api/whitepaper/view', (req, res) => {
+    try {
+      const pdfPath = path.join(__dirname, '..', 'assets', 'whitepaper.pdf');
+      if (!fs.existsSync(pdfPath)) {
+        return res.status(404).json({ error: 'Whitepaper not found' });
+      }
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', 'inline; filename="AVGX_Whitepaper.pdf"');
+      const fileStream = fs.createReadStream(pdfPath);
+      fileStream.pipe(res);
+    } catch (error) {
+      console.error('Error serving inline whitepaper:', error);
+      res.status(500).json({ error: 'Failed to serve whitepaper' });
+    }
+  });
+
   // AVGX Coin endpoints
   app.get('/api/coin/status', async (req, res) => {
     try {
