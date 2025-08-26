@@ -9,6 +9,8 @@ import { avgxCoinService } from "./services/avgx-coin";
 import { FileManager } from "./utils/file-manager";
 import dotenv from 'dotenv';
 import * as pkg from 'pg';
+import path from 'path';
+import fs from 'fs';
 
 dotenv.config();
 
@@ -30,7 +32,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         message: 'Successfully connected to the database and fetched data!',
         databaseTime: result.rows[0].now,
       });
-    } catch (err) {
+    } catch (err: any) {
       console.error('Database connection or query error:', err);
       res.status(500).json({
         success: false,
@@ -298,20 +300,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Serve whitepaper PDF
+  // Serve whitepaper PDF: force download
   app.get('/api/whitepaper', (req, res) => {
     try {
-      const path = require('path');
-      const fs = require('fs');
-      const pdfPath = path.join(__dirname, '..', 'attached_assets', 'avgx_whitepaper_updated_1756141073689.pdf');
-      
+      const pdfPath = path.join(__dirname, '..', 'assets', 'whitepaper.pdf');
       if (!fs.existsSync(pdfPath)) {
         return res.status(404).json({ error: 'Whitepaper not found' });
       }
-      
       res.setHeader('Content-Type', 'application/pdf');
       res.setHeader('Content-Disposition', 'attachment; filename="AVGX_Whitepaper.pdf"');
-      
       const fileStream = fs.createReadStream(pdfPath);
       fileStream.pipe(res);
     } catch (error) {
